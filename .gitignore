@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# data
+data/raw/
+data/interim/
+data/processed/
+data/parquet_partitioned/
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
+
+# artifacts
+*.zip
+*.log

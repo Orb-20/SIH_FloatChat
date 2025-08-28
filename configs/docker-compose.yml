@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: argo-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-argo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-argo}
+      POSTGRES_DB: ${POSTGRES_DB:-argo}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-argo} -d ${POSTGRES_DB:-argo}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  chroma:
+    image: chromadb/chroma:latest
+    container_name: argo-chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/chroma
+    volumes:
+      - chroma:/chroma
+    ports:
+      - "${CHROMA_PORT:-8000}:8000"
+
+volumes:
+  pgdata:
+  chroma:
