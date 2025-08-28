@@ -21,11 +21,17 @@ import os
 import re
 import json
 import chromadb
-from chromadb.config import Settings
 import google.generativeai as genai
 import psycopg2
 from sentence_transformers import SentenceTransformer
 from typing import List, Dict, Any
+
+# --- .env loading ---
+# This will load environment variables from a .env file in the same directory
+from dotenv import load_dotenv
+load_dotenv()
+# --------------------
+
 
 # -----------------------
 # CONFIG / CLIENTS
@@ -45,12 +51,11 @@ if not DATABASE_URL:
 
 ALLOWED_TABLES = set(os.getenv("ALLOWED_TABLES", "profiles,levels,measurements").split(","))
 
-# create chroma client (HTTP)
-chroma_client = chromadb.Client(Settings(
-    chroma_api_impl="rest",
-    chroma_server_host=CHROMA_HOST,
-    chroma_server_http_port=CHROMA_PORT
-))
+# create chroma client (HTTP) - updated to use HttpClient
+chroma_client = chromadb.HttpClient(
+    host=CHROMA_HOST,
+    port=CHROMA_PORT
+)
 chroma_col = chroma_client.get_or_create_collection("floatchat")
 
 # sentence-transformers embedding model (used for query embedding)
@@ -127,10 +132,10 @@ def fetch_schema():
         conn = get_db_conn()
         cur = conn.cursor()
         cur.execute("""
-          SELECT table_name, column_name, data_type
-          FROM information_schema.columns
-          WHERE table_schema='public'
-          ORDER BY table_name, ordinal_position
+            SELECT table_name, column_name, data_type
+            FROM information_schema.columns
+            WHERE table_schema='public'
+            ORDER BY table_name, ordinal_position
         """)
         rows = cur.fetchall()
         cur.close()
