@@ -40,7 +40,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
       POSTGRES_DB: ${POSTGRES_DB:-argo_db}
       # <-- Replace the value below with your actual API key (keep quotes if it contains special chars)
-      GOOGLE_API_KEY: "AIzaSyA_1TrlxPdpHwPoHTCXz9QECrtN8w1lJuk"
+      GOOGLE_API_KEY: #(hidden)
     networks:
       - floatchat-net
     command: ["uvicorn", "services.api.rag:app", "--host", "0.0.0.0", "--port", "8000"]
