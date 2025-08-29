@@ -1,7 +1,4 @@
 # configs/docker-compose.yml
-
-version: '3.8'
-
 services:
   db:
     image: postgres:13
@@ -37,16 +34,16 @@ services:
       - db
       - chroma
     ports:
-      - "8001:8000" # Expose API on host port 8001, container port 8000
+      - "8001:8000"
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:-user}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
-      - POSTGRES_DB=${POSTGRES_DB:-argo_db}
-      - GOOGLE_API_KEY=${GOOGLE_API_KEY} # Pass the Google API key from your environment
+      POSTGRES_USER: ${POSTGRES_USER:-user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-argo_db}
+      # <-- Replace the value below with your actual API key (keep quotes if it contains special chars)
+      GOOGLE_API_KEY: "AIzaSyA_1TrlxPdpHwPoHTCXz9QECrtN8w1lJuk"
     networks:
       - floatchat-net
     command: ["uvicorn", "services.api.rag:app", "--host", "0.0.0.0", "--port", "8000"]
-
 
   frontend:
     build:

@@ -40,7 +40,7 @@ st.markdown("""
 
 
 # --- API Configuration ---
-API_URL = "http://api:8000/query" # 'api' is the service name in docker-compose
+API_URL = "http://localhost:8001/query" # 'api' is the service name in docker-compose
 
 # --- Sidebar ---
 with st.sidebar:
