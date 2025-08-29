@@ -1,45 +1,17 @@
-# Core data & IO
-xarray
-netCDF4
-numpy
 pandas
-pyarrow
-fastparquet
-
-# Database
-SQLAlchemy>=2.0
+numpy
+netCDF4
+xarray
 psycopg2-binary
-geoalchemy2
-shapely
-
-# Vector DB & NLP
-chromadb
-sentence-transformers
-
-# API
+sqlalchemy
 fastapi
-uvicorn
-
-# Frontend
+uvicorn[standard]
+python-dotenv
+requests
+chromadb
+langchain
+langchain-community
+langchain-google-genai
+google-generativeai
 streamlit
 plotly
-folium
-
-# Utils
-python-dotenv
-tqdm
-pydantic
-typer
-rich
-orjson
-
-fastapi
-uvicorn
-chromadb
-psycopg2-binary
-google-generativeai
-pandas   # used in embeddings script
-
-
-
-

@@ -1,32 +1,70 @@
+# configs/docker-compose.yml
+
+version: '3.8'
+
 services:
-  postgres:
-    image: postgis/postgis:16-3.4
-    container_name: argo-postgres
+  db:
+    image: postgres:13
+    container_name: postgres_db
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-argo}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-argo}
-      POSTGRES_DB: ${POSTGRES_DB:-argo}
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      POSTGRES_DB: ${POSTGRES_DB:-argo_db}
+      POSTGRES_USER: ${POSTGRES_USER:-user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
     volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-argo} -d ${POSTGRES_DB:-argo}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - postgres_data:/var/lib/postgresql/data
+      - ../db/schema.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - floatchat-net
 
   chroma:
     image: chromadb/chroma:latest
-    container_name: argo-chroma
-    environment:
-      - IS_PERSISTENT=TRUE
-      - PERSIST_DIRECTORY=/chroma
-    volumes:
-      - chroma:/chroma
+    container_name: chroma_db
     ports:
-      - "${CHROMA_PORT:-8000}:8000"
+      - "8000:8000"
+    volumes:
+      - chroma_data:/chroma/.chroma/index
+    networks:
+      - floatchat-net
+
+  api:
+    build:
+      context: ..
+      dockerfile: configs/Dockerfile.api
+    container_name: floatchat_api
+    depends_on:
+      - db
+      - chroma
+    ports:
+      - "8001:8000" # Expose API on host port 8001, container port 8000
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
+      - POSTGRES_DB=${POSTGRES_DB:-argo_db}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY} # Pass the Google API key from your environment
+    networks:
+      - floatchat-net
+    command: ["uvicorn", "services.api.rag:app", "--host", "0.0.0.0", "--port", "8000"]
+
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: configs/Dockerfile.frontend
+    container_name: floatchat_frontend
+    depends_on:
+      - api
+    ports:
+      - "8501:8501"
+    networks:
+      - floatchat-net
+    command: ["streamlit", "run", "services/frontend/app.py", "--server.port=8501", "--server.address=0.0.0.0"]
 
 volumes:
-  pgdata:
-  chroma:
+  postgres_data:
+  chroma_data:
+
+networks:
+  floatchat-net:
+    driver: bridge
