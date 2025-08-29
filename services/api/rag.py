@@ -53,6 +53,7 @@ except Exception as e:
     print(f"Error connecting to PostgreSQL: {e}")
     engine = None
 
+# Connect to ChromaDB
 # Connect to ChromaDB (robust, avoids settings vs args mismatch)
 retriever = None
 try:
